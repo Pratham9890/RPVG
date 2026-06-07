@@ -1,3 +1,5 @@
 # Ignore Python cache files and folders
 __pycache__/
 *.pyc
+output/
+tts_test.py
