@@ -12,7 +12,6 @@ def find_Posts(page, browser, num_posts, upvote_threshold, comment_threshold):
         url = "https://www.reddit.com" + post.get_attribute("permalink")
         upvotes = post.get_attribute("score")
         comment_count = post.get_attribute("comment-count")
-        
 
         # Only get the body and add the post to the list if it meets the requirements
         if int(upvotes) >= upvote_threshold and int(comment_count) >= comment_threshold:
@@ -26,7 +25,7 @@ def find_Posts(page, browser, num_posts, upvote_threshold, comment_threshold):
                     "comment_count": int(comment_count),
                     "body": body,
                     "word_count": len(body.split()),
-                    "character_count": len(body)
+                    "character_count": len(body),
                 }
             )
     return posts
@@ -52,17 +51,23 @@ def get_body(url, browser, title):
     body = page.query_selector("shreddit-post-text-body")
     body_text = ""
 
-    os.makedirs("screenshots", exist_ok=True)
-    page.query_selector("shreddit-post").screenshot(path=f"screenshots/{get_clean_title(title)}.png")
+    take_screenshot(page, title)
 
     if body:
         body_text = body.inner_text().replace("\n", " ").replace("  ", " ")
-    
+
     page.close()
     return body_text
 
 
+def take_screenshot(page, title):
+    os.makedirs("screenshots", exist_ok=True)
+    page.query_selector("shreddit-post").screenshot(
+        path=f"screenshots/{get_clean_title(title)}.png"
+    )
+
+
 def get_clean_title(title):
-    # imrpove the line below and use just one sub
-    title = re.sub(r'[\\/*?:"<>|]', "", title)
+    # Remove special characters from the title
+    title = re.sub(r"[\\/*?:\"\'<>|]", "", title)
     return title.replace(" ", "_")
