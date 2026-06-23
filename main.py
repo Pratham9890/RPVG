@@ -6,14 +6,32 @@ def main():
 
     posts = []
     with sync_playwright() as playwright:
+        # Limit the number of post to create video for
         num_posts = 2
-        upvote_threshold = 500
-        comment_threshold = 100
+        # Set requirements for the posts
+        upvote_threshold = 100
+        comment_threshold = 10
+        min_word_count = 200
+        max_word_count = 300
+        # Set the subreddit to scrape
+        subreddit = "pettyrevenge"
 
         # Run the scraper and get the posts
-        posts = run(playwright, num_posts, upvote_threshold, comment_threshold)
+        posts = run(
+            playwright,
+            num_posts,
+            upvote_threshold,
+            comment_threshold,
+            min_word_count,
+            max_word_count,
+            subreddit,
+        )
 
-    # Generate the audio for each post
+    if not posts:
+        print("No posts found that meet the criteria.")
+        return
+
+    # Generate video for each post
     for post in posts:
         clean_title = scraper.get_clean_title(post["title"])
         save_audio(post)
@@ -30,16 +48,30 @@ def run(
     num_posts: int,
     upvote_threshold: int = 0,
     comment_threshold: int = 0,
+    min_word_count: int = 0,
+    max_word_count: int = 1000,
+    subreddit: str = "pettyrevenge",
 ):
     # Creates a browser and goes to the subreddit page
     chromium = playwright.chromium
-    browser = chromium.launch(headless=False)
+    browser = playwright.chromium.launch_persistent_context(
+        user_data_dir="./reddit_profile",
+        headless=False,
+        channel="chrome",
+        viewport={"width": 600, "height": 4000},
+    )
     page = browser.new_page()
-    page.goto("https://www.reddit.com/r/pettyrevenge/rising/")
+    page.goto(f"https://www.reddit.com/r/{subreddit}/rising/")
 
     # Extract the posts
     posts = scraper.find_Posts(
-        page, browser, num_posts, upvote_threshold, comment_threshold
+        page,
+        browser,
+        num_posts,
+        upvote_threshold,
+        comment_threshold,
+        min_word_count,
+        max_word_count,
     )
 
     scraper.print_Posts(posts)

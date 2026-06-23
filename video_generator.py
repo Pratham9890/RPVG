@@ -11,17 +11,15 @@ def generate_video(back_img: str, post_img: str, audio_file: str, out_file: str)
 
     w1, w2, h1, h2 = 0, back_width, 0, back_height
 
-
     # Crop any video to 9:16 aspect ratio (shorts/reel format)
-    if aspect_ratio > 9/16:
-        new_width = int(back_height * 9/16)
+    if aspect_ratio > 9 / 16:
+        new_width = int(back_height * 9 / 16)
         w1 = int((back_width - new_width) / 2)
         w2 = w1 + new_width
     else:
-        new_height = int(back_width * 16/9)
+        new_height = int(back_width * 16 / 9)
         h1 = int((back_height - new_height) / 2)
         h2 = h1 + new_height
-
 
     cropped = background.cropped(
         x1=w1,
@@ -34,19 +32,19 @@ def generate_video(back_img: str, post_img: str, audio_file: str, out_file: str)
     audio = AudioFileClip(audio_file)
 
     # Post overlay
-    post = ImageClip(post_img).with_duration(audio.duration)
-    post = post.with_position((((w2-w1) - post.w) / 2, (h2-h1) / 8), relative=False)
+    post_overlay = ImageClip(post_img).with_duration(audio.duration)
+    post_overlay = post_overlay.with_position((((w2 - w1) - post_overlay.w) / 2, (h2 - h1) / 12), relative=False)
     print("Audio duration:", audio.duration)
 
     # Trimmed video to match audio duration
     trimed_vid = cropped.subclipped(0, audio.duration)
     trimed_vid = trimed_vid.with_audio(audio)
     trimed_vid = trimed_vid.with_fps(30)
-    composite = CompositeVideoClip([trimed_vid, post])
+    composite = CompositeVideoClip([trimed_vid, post_overlay])
     composite.write_videofile(out_file, codec="h264_nvenc", preset="fast", threads=4)
 
     background.close()
     audio.close()
-    post.close()
+    post_overlay.close()
     trimed_vid.close()
     composite.close()
