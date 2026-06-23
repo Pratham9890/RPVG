@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright, Playwright
 import scraper, tts, os, video_generator, subtitles
 
+os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg/bin")
 
 def main():
 
@@ -12,7 +13,7 @@ def main():
         upvote_threshold = 100
         comment_threshold = 10
         min_word_count = 200
-        max_word_count = 280
+        max_word_count = 300
         # Set the subreddit to scrape
         subreddit = "pettyrevenge"
 
@@ -24,7 +25,7 @@ def main():
             comment_threshold,
             min_word_count,
             max_word_count,
-            subreddit,
+            subreddit
         )
 
     if not posts:
@@ -34,24 +35,16 @@ def main():
     # Loops over all posts
     for post in posts:
         clean_title = scraper.get_clean_title(post["title"])
+        background_video = "videos/background.mp4"
+
         # Save audio
         save_audio(post)
-        # Generate video with background, post image, and audio
-        video_generator.generate_video(
-            back_img="videos/background.mp4",
-            post_img=f"screenshots/{clean_title}.png",
-            audio_file=f"audios/{clean_title}.mp3",
-            out_file=f"output/{clean_title}.mp4",
-        )
 
         # Generating subtitles
         subtitles.generate_subtitles(f"audios/{clean_title}.mp3", clean_title)
-        # Burn subtitles into the video
-        subtitles.burn_subtitles(
-            video_file=f"output/{clean_title}.mp4",
-            subtitle_file=f"subtitles/{clean_title}.ass",
-            output_file=f"output/{clean_title}_subtitled.mp4",
-        )
+
+        # Generate video with background, post image, audio and subtitles
+        video_generator.generate_video(background_video, clean_title)
 
 
 def run(
