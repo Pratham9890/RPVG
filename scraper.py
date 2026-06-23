@@ -12,6 +12,11 @@ def find_Posts(
     max_word_count,
 ):
     post_info = page.query_selector_all("shreddit-post")
+    # Scroll down page until there are at least 50 posts in view
+    while len(post_info) <= 50:
+        page.mouse.wheel(0, 5000)
+        page.wait_for_timeout(1000)
+        post_info = page.query_selector_all("shreddit-post")
     posts = []
 
     # Extract information from each post and add it to the list if it meets the requirements

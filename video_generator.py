@@ -1,10 +1,17 @@
-import subprocess
+import subprocess, random
+
 
 def generate_video(background_video: str, title: str):
+
+    start = random.randint(0, 480)
+    
     cmd = [
         "ffmpeg",
 
+        "-ss", str(start),
+
         "-i", background_video,
+        
         "-i", f"screenshots/{title}.png",
         "-i", f"audios/{title}.mp3",
 
@@ -25,5 +32,5 @@ def generate_video(background_video: str, title: str):
 
         f"output/{title}.mp4"
     ]
-    subprocess.run(cmd)
+    subprocess.run(cmd,check=True)
 

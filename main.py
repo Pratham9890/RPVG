@@ -8,6 +8,7 @@ def main():
     posts = []
     with sync_playwright() as playwright:
         # Limit the number of post to create video for
+        # Currently it is theoretical max 50 because I have not implemented scrolling on demand yet
         num_posts = 1
         # Set requirements for the posts
         upvote_threshold = 100
@@ -65,7 +66,7 @@ def run(
         viewport={"width": 600, "height": 4000},
     )
     page = browser.new_page()
-    page.goto(f"https://www.reddit.com/r/{subreddit}/rising/")
+    page.goto(f"https://www.reddit.com/r/{subreddit}/hot/")
 
     # Extract the posts
     posts = scraper.find_Posts(
