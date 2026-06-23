@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright, Playwright
-import scraper, tts, os, video_generator
+import scraper, tts, os, video_generator, subtitles
 
 
 def main():
@@ -7,12 +7,12 @@ def main():
     posts = []
     with sync_playwright() as playwright:
         # Limit the number of post to create video for
-        num_posts = 2
+        num_posts = 1
         # Set requirements for the posts
         upvote_threshold = 100
         comment_threshold = 10
         min_word_count = 200
-        max_word_count = 300
+        max_word_count = 280
         # Set the subreddit to scrape
         subreddit = "pettyrevenge"
 
@@ -31,15 +31,26 @@ def main():
         print("No posts found that meet the criteria.")
         return
 
-    # Generate video for each post
+    # Loops over all posts
     for post in posts:
         clean_title = scraper.get_clean_title(post["title"])
+        # Save audio
         save_audio(post)
+        # Generate video with background, post image, and audio
         video_generator.generate_video(
             back_img="videos/background.mp4",
             post_img=f"screenshots/{clean_title}.png",
             audio_file=f"audios/{clean_title}.mp3",
             out_file=f"output/{clean_title}.mp4",
+        )
+
+        # Generating subtitles
+        subtitles.generate_subtitles(f"audios/{clean_title}.mp3", clean_title)
+        # Burn subtitles into the video
+        subtitles.burn_subtitles(
+            video_file=f"output/{clean_title}.mp4",
+            subtitle_file=f"subtitles/{clean_title}.ass",
+            output_file=f"output/{clean_title}_subtitled.mp4",
         )
 
 

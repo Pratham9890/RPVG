@@ -28,8 +28,7 @@ def find_Posts(
             page = browser.new_page()
             page.goto(url)
             body = get_body(page)
-            
-            
+
             word_count = len(body.split())
             if min_word_count <= word_count <= max_word_count:
                 take_screenshot(page, title)
@@ -63,7 +62,7 @@ def print_Posts(posts):
 
 def get_body(page):
     # Opens the post in a new page and return the body text
-    
+
     page.wait_for_selector("shreddit-post-text-body")
     body = page.query_selector("shreddit-post-text-body")
     body_text = ""
@@ -81,7 +80,7 @@ def get_body(page):
 
 def take_screenshot(page, title):
     os.makedirs("screenshots", exist_ok=True)
-    
+
     # Zoom in page to make the text larger
     page.evaluate("""
     () => {

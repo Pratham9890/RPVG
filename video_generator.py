@@ -33,7 +33,9 @@ def generate_video(back_img: str, post_img: str, audio_file: str, out_file: str)
 
     # Post overlay
     post_overlay = ImageClip(post_img).with_duration(audio.duration)
-    post_overlay = post_overlay.with_position((((w2 - w1) - post_overlay.w) / 2, (h2 - h1) / 12), relative=False)
+    post_overlay = post_overlay.with_position(
+        (((w2 - w1) - post_overlay.w) / 2, (h2 - h1) / 16), relative=False
+    )
     print("Audio duration:", audio.duration)
 
     # Trimmed video to match audio duration
